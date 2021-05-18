@@ -27,8 +27,8 @@ namespace IdlessChaye.TouhouWaltz.Beats
 
 		private BeatStopwatch _stopwatch;
 		private IList<BeatNoteItem> _beatNoteItems;
-		private int _spriteItemIndex = 0;
 
+		private int _spriteItemIndex = 0;
 		private Queue<BaseBeatSpriteItem> _spriteItemQueue = new Queue<BaseBeatSpriteItem>();
 
 		public void Init()
@@ -56,6 +56,9 @@ namespace IdlessChaye.TouhouWaltz.Beats
 
 		public void Tick(float deltaTime)
 		{
+			if (BeatManager.Instance.IsPlaying == false)
+				return;
+
 			if (_stopwatch.IsRunning == false)
 				return;
 
@@ -135,5 +138,29 @@ namespace IdlessChaye.TouhouWaltz.Beats
 			go.transform.SetAsFirstSibling();
 			return go;
 		}
+
+		public void ResetGame()
+		{
+			_spriteItemIndex = 0;
+			foreach(var item in _spriteItemQueue)
+			{
+				Destroy(item.gameObject);
+			}
+			_spriteItemQueue.Clear();
+		}
+
+		public void ReadyToBePrepared()
+		{
+			_beatNoteItems = null;
+			MaxRenderHalfTimeWindow = 0;
+			_spriteItemIndex = 0;
+			foreach (var item in _spriteItemQueue)
+			{
+				Destroy(item.gameObject);
+			}
+			_spriteItemQueue.Clear();
+			
+		}
+
 	}
 }

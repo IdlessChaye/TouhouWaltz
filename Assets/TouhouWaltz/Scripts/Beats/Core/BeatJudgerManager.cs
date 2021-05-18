@@ -25,6 +25,9 @@ namespace IdlessChaye.TouhouWaltz.Beats
 
 		public void Tick(float deltaTime)
 		{
+			if (BeatManager.Instance.IsPlaying == false)
+				return;
+
 			foreach(var judger in _judgers)
 			{
 				judger.Tick(deltaTime);
@@ -36,6 +39,22 @@ namespace IdlessChaye.TouhouWaltz.Beats
 			foreach(var judger in _judgers)
 			{
 				judger.PrepareGame();
+			}
+		}
+
+		public void ResetGame()
+		{
+			foreach(var judger in _judgers)
+			{
+				judger.ResetGame();
+			}
+		}
+
+		public void ReadyToBePrepared()
+		{
+			foreach (var judger in _judgers)
+			{
+				judger.ReadyToBePrepared();
 			}
 		}
 	}

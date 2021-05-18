@@ -75,5 +75,16 @@ namespace IdlessChaye.TouhouWaltz.Beats
 			}
 			return false;
 		}
+
+		public void ResetGame()
+		{
+			Combo = 0;
+		}
+
+		public void ReadyToBePrepared()
+		{
+			Combo = 0;
+		}
+
 	}
 }

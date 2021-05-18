@@ -6,7 +6,7 @@ namespace IdlessChaye.TouhouWaltz.Beats
 {
 	public class BeatAudioManager
 	{
-		public string ClipName { get; set; }
+		public string ClipName { get; private set; }
 
 		private AudioSource audio;
 
@@ -26,8 +26,9 @@ namespace IdlessChaye.TouhouWaltz.Beats
 			
 		}
 
-		public void PrepareGame()
+		public void PrepareGame(string clipName)
 		{
+			ClipName = clipName;
 			LoadMusic();
 		}
 
@@ -36,6 +37,14 @@ namespace IdlessChaye.TouhouWaltz.Beats
 			if (audio.clip != null)
 			{
 				audio.Play();
+			}
+		}
+
+		public void StopAudio()
+		{
+			if (audio.clip != null)
+			{
+				audio.Stop();
 			}
 		}
 
@@ -75,5 +84,13 @@ namespace IdlessChaye.TouhouWaltz.Beats
 				return clip;
 			}
 		}
+
+		public void ReadyToBePrepared()
+		{
+			ClipName = null;
+			StopAudio();
+			this.audio.clip = null;
+		}
+
 	}
 }

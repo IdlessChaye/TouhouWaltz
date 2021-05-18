@@ -4,35 +4,19 @@ using UnityEngine;
 
 namespace IdlessChaye.TouhouWaltz.Beats
 {
-
-	public delegate void OnBeatButtonDown();
-	public delegate void OnBeatButtonUp();
-
-
 	public enum InputerStatus
 	{
 		Release,
 		Hold,
 	}
 
-	public class BeatInputer
+	public abstract class BaseBeatInputer
 	{
-		public bool IsMouse { get; set; } = true;
-		public KeyCode Key { get; set; }
-		public int Mouse { get; set; }
+		public InputerStatus Status { get; protected set; } = InputerStatus.Release;
 
+		public bool IsUp { get; protected set; } = false;
 
-
-		public InputerStatus Status { get; set; } = InputerStatus.Release;
-
-		public bool IsUp { get; set; } = false;
-
-		public bool IsDown { get; set; } = false;
-
-		public event OnBeatButtonUp onBeatButtonUp;
-
-		public event OnBeatButtonDown onBeatButtonDown;
-
+		public bool IsDown { get; protected set; } = false;
 
 		public void PrepareGame()
 		{
@@ -41,49 +25,64 @@ namespace IdlessChaye.TouhouWaltz.Beats
 			IsDown = false;
 		}
 
-		public void ListenInput()
+		public virtual void ListenInput()
 		{
 			IsUp = false;
 			IsDown = false;
+		}
+	}
 
-			if (IsMouse)
+
+	public class BeatMouseInputer : BaseBeatInputer
+	{
+		public int Mouse { get; private set; }
+
+		public BeatMouseInputer(int mouse)
+		{
+			Mouse = mouse;
+		}
+
+		public override void ListenInput()
+		{
+			base.ListenInput();
+
+			if (Input.GetMouseButtonDown(Mouse))
 			{
-				if (Input.GetMouseButtonDown(Mouse))
-				{
-					if (onBeatButtonDown != null)
-						onBeatButtonDown.Invoke();
-
-					IsDown = true;
-					Status = InputerStatus.Hold;
-				}
-				else if (Input.GetMouseButtonUp(Mouse))
-				{
-					if (onBeatButtonUp != null)
-						onBeatButtonUp.Invoke();
-
-					IsUp = true;
-					Status = InputerStatus.Release;
-				}
+				IsDown = true;
+				Status = InputerStatus.Hold;
 			}
-			else
+			else if (Input.GetMouseButtonUp(Mouse))
 			{
-				if (Input.GetKeyDown(Key))
-				{
-					if (onBeatButtonDown != null)
-						onBeatButtonDown.Invoke();
-
-					IsDown = true;
-					Status = InputerStatus.Hold;
-				}
-				else if (Input.GetKeyUp(Key))
-				{
-					if (onBeatButtonUp != null)
-						onBeatButtonUp.Invoke();
-
-					IsUp = true;
-					Status = InputerStatus.Release;
-				}
+				IsUp = true;
+				Status = InputerStatus.Release;
 			}
 		}
+	}
+
+	public class BeatKeyInputer : BaseBeatInputer
+	{
+		public KeyCode Key { get; private set; }
+
+		public BeatKeyInputer(KeyCode keyCode)
+		{
+			Key = keyCode;
+		}
+
+		public override void ListenInput()
+		{
+			base.ListenInput();
+
+			if (Input.GetKeyDown(Key))
+			{
+				IsDown = true;
+				Status = InputerStatus.Hold;
+			}
+			else if (Input.GetKeyUp(Key))
+			{
+				IsUp = true;
+				Status = InputerStatus.Release;
+			}
+		}
+
 	}
 }

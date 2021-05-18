@@ -20,8 +20,8 @@ namespace IdlessChaye.TouhouWaltz.Beats
 		#endregion
 
 		public bool IsPlaying { get; private set; }
-		public string MapName { get; set; }
-		public string ClipName { get; set; }
+		public string MapName { get; private set; }
+		public string ClipName { get; private set; }
 
 
 		private MonoBeatManager _mono;
@@ -30,15 +30,15 @@ namespace IdlessChaye.TouhouWaltz.Beats
 		private BeatJudgerManager _beatJudgerManager;
 		private BeatResultManager _beatResultManager;
 		private BeatRenderManager _beatRenderManager;
-		//public BeatAudioManager BeatAudioManager => _beatAudioManager;
+		private GameObject _beatCanvas;
+		
 
 		private BeatMapData _beatMapData;
 		public BeatMapData BeatMapData => _beatMapData;
-		private BeatStopwatch stopwatch = new BeatStopwatch();
-		public BeatStopwatch Stopwatch => stopwatch;
+		private BeatStopwatch _stopwatch = new BeatStopwatch();
+		public BeatStopwatch Stopwatch => _stopwatch;
 		private SortedList<float, BeatNoteItem> beatNoteItems = new SortedList<float, BeatNoteItem>();
 		public SortedList<float, BeatNoteItem> BeatNoteItems => beatNoteItems;
-		private GameObject _beatCanvas;
 
 		public void Init()
 		{
@@ -49,26 +49,11 @@ namespace IdlessChaye.TouhouWaltz.Beats
 			var manager = GameObject.Instantiate(managerPrefab);
 			_mono = manager.GetComponent<MonoBeatManager>();
 
-			if (_mono == null)
-			{
-				UnityEngine.Debug.LogError("BeatManager Init()");
-				return;
-			}
-
-			//stopwatch.OnPastTimeChanged += (float time) => Debug.Log(time);
 
 			_beatInputerManager = new BeatInputerManager();
 			_beatInputerManager.Init();
-			var leftMouseInputer = new BeatInputer { IsMouse = true, Mouse = 0 };
+			var leftMouseInputer = new BeatMouseInputer(0);
 			_beatInputerManager.AddInputer(leftMouseInputer); 
-			//leftMouseInputer.onBeatButtonDown += () => { UnityEngine.Debug.Log("Mouse 0 Down"); };
-			//leftMouseInputer.onBeatButtonUp += () => { UnityEngine.Debug.Log("Mouse 0 Up"); };
-			//var rightMouseInputer = new BeatInputer { IsMouse = true, Mouse = 1 };
-			//rightMouseInputer.onBeatButtonUp += () => {
-			//	PrepareGame("100-200+tanigon - 渋滞の楽しみ方", "100-200+tanigon - 渋滞の楽しみ方");
-			//	StartGame();
-			//};
-			//_beatInputerManager.AddInputer(rightMouseInputer);
 
 			_beatAudioManager = new BeatAudioManager(_mono.Audio);
 			_beatAudioManager.Init();
@@ -87,12 +72,8 @@ namespace IdlessChaye.TouhouWaltz.Beats
 
 			var canvasPrefab = Resources.Load<GameObject>(BeatConst.BeatCanvasPrefabPath) as GameObject;
 			_beatCanvas = GameObject.Instantiate(canvasPrefab);
+
 			_beatRenderManager = _beatCanvas.GetComponent<BeatRenderManager>();
-			if (_beatRenderManager == null)
-			{
-				UnityEngine.Debug.LogError("BeatManager Init()");
-				return;
-			}
 			_beatRenderManager.Init();
 			_beatResultManager.OnComboChanged += (combo) =>
 			{
@@ -106,7 +87,7 @@ namespace IdlessChaye.TouhouWaltz.Beats
 			};
 			_beatResultManager.OnNoteResult += (result) =>
 			{
-				var str = "Time: " + stopwatch.PastTime + "  ";
+				var str = "Time: " + _stopwatch.PastTime + "  ";
 				str += "Judge: " + result.resultType.ToString();
 				_beatRenderManager.JudgeResultText.text = str;
 				//_beatRenderManager.JudgeResultText.DOText(str, 0.2f);
@@ -122,11 +103,9 @@ namespace IdlessChaye.TouhouWaltz.Beats
 			ClipName = clipName;
 			MapName = mapName;
 
-			_beatAudioManager.ClipName = this.ClipName;
-			_beatAudioManager.PrepareGame();
-
+			_beatAudioManager.PrepareGame(ClipName);
 			LoadGameData(mapName);
-			stopwatch.Reset();
+			_stopwatch.Reset();
 
 			_beatInputerManager.PrepareGame();
 			_beatJudgerManager.PrepareGame();
@@ -140,7 +119,7 @@ namespace IdlessChaye.TouhouWaltz.Beats
 			var ie = CoroutineHelper.Instance.DelayCall(BeatConst.MusicStartDelay, () =>
 			{
 				IsPlaying = true;
-				stopwatch.Start();
+				_stopwatch.Start();
 				_beatAudioManager.PlayAudio();
 			});
 		}
@@ -148,21 +127,20 @@ namespace IdlessChaye.TouhouWaltz.Beats
 		public void PauseGame()
 		{
 			IsPlaying = false;
-			stopwatch.Pause();
+			_stopwatch.Pause();
 			_beatAudioManager.PauseAudio();
 		}
 
 		public void ResumeGame()
 		{
 			IsPlaying = true;
-			stopwatch.Start();
+			_stopwatch.Start();
 			_beatAudioManager.PlayAudio();
 		}
 
-		// FixedUpdate
 		public void Tick(float deltaTime)
 		{
-			stopwatch.Tick(deltaTime);
+			_stopwatch.Tick(deltaTime);
 			_beatInputerManager.Tick(deltaTime);
 			_beatJudgerManager.Tick(deltaTime);
 			_beatResultManager.Tick(deltaTime);
@@ -206,9 +184,40 @@ namespace IdlessChaye.TouhouWaltz.Beats
 		}
 
 
-		public void LogTime(string context)
+
+		// Return to have prepared game.
+		public void ResetGame()
 		{
-			UnityEngine.Debug.Log(context + "  time: " + BeatManager.Instance.Stopwatch.PastTime);
+			IsPlaying = false;
+			_stopwatch.Reset();
+
+			_beatAudioManager.StopAudio();
+			_beatJudgerManager.ResetGame();
+			_beatResultManager.ResetGame();
+			_beatRenderManager.ResetGame();
+		}
+
+		// Return to have initialized BeatManager.
+		public void ReadyToBePrepared()
+		{
+			IsPlaying = false;
+			MapName = null;
+			ClipName = null;
+
+			_beatMapData = null;
+			beatNoteItems.Clear();
+			_stopwatch.Reset();
+
+			_beatAudioManager.ReadyToBePrepared();
+			_beatJudgerManager.ReadyToBePrepared();
+			_beatResultManager.ReadyToBePrepared();
+			_beatRenderManager.ReadyToBePrepared();
+		}
+
+		// Return to there is no any beats.
+		public void DestroyAll()
+		{
+			//TODO
 		}
 
 	}

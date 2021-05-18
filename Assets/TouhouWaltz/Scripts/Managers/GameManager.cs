@@ -24,14 +24,7 @@ namespace IdlessChaye.TouhouWaltz
 
 		private void OnGUI()
 		{
-			if (GUILayout.Button("播放歌谱"))
-			{
-				if (BeatManager.Instance.IsPlaying == false)
-				{ 
-					BeatManager.Instance.PrepareGame(clipName, clipName);
-					BeatManager.Instance.StartGame();
-				}
-			}
+			TestBeatManager();
 		}
 
 		private void Update()
@@ -45,9 +38,43 @@ namespace IdlessChaye.TouhouWaltz
 			}
 		}
 
-		private void FixedUpdate()
+		private void TestBeatManager()
 		{
-			
+			if (GUILayout.Button("播放歌谱"))
+			{
+				if (BeatManager.Instance.IsPlaying == false)
+				{
+					BeatManager.Instance.PrepareGame(clipName, clipName);
+					BeatManager.Instance.StartGame();
+				}
+			}
+			if (GUILayout.Button("PrepareGame"))
+			{
+				BeatManager.Instance.PrepareGame(clipName, clipName);
+			}
+			if (GUILayout.Button("StartGame"))
+			{
+				if (BeatManager.Instance.IsPlaying == false)
+					BeatManager.Instance.StartGame();
+			}
+			if (GUILayout.Button("PauseGame"))
+			{
+				if (BeatManager.Instance.IsPlaying == true)
+					BeatManager.Instance.PauseGame();
+			}
+			if (GUILayout.Button("ResumeGame"))
+			{
+				if (BeatManager.Instance.IsPlaying == false)
+					BeatManager.Instance.ResumeGame();
+			}
+			if (GUILayout.Button("ResetGame"))
+			{
+				BeatManager.Instance.ResetGame();
+			}
+			if (GUILayout.Button("ReadyToBePrepared"))
+			{
+				BeatManager.Instance.ReadyToBePrepared();
+			}
 		}
 	}
 }

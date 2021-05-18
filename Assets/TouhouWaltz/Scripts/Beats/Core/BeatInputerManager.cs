@@ -7,9 +7,7 @@ namespace IdlessChaye.TouhouWaltz.Beats
 	public class BeatInputerManager
 	{
 
-		private List<BeatInputer> _inputers = new List<BeatInputer>();
-
-		private bool _isListening;
+		private List<BaseBeatInputer> _inputers = new List<BaseBeatInputer>();
 
 		public void Init()
 		{
@@ -24,36 +22,21 @@ namespace IdlessChaye.TouhouWaltz.Beats
 			}
 		}
 
-		public void AddInputer(BeatInputer inputer)
+		public void AddInputer(BaseBeatInputer inputer)
 		{
 			_inputers.Add(inputer);
 		}
 
-		public void SetInputerKey(int index, KeyCode newKeyCode)
-		{
-			_inputers[index].IsMouse = false;
-			_inputers[index].Key = newKeyCode;
-		}
-
-		public void SetInputerMouse(int index, int mouseIndex)
-		{
-			_inputers[index].IsMouse = true;
-			_inputers[index].Mouse = mouseIndex;
-		}
-
 		public void Tick(float deltaTime)
 		{
+			if (BeatManager.Instance.IsPlaying == false)
+				return;
+
 			foreach(var inputer in _inputers)
 			{
 				inputer.ListenInput();
 			}
 		}
-
-		public void Clear()
-		{
-			_inputers.Clear();
-		}
-
 		
 	}
 }

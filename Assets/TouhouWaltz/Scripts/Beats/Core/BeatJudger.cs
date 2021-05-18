@@ -6,15 +6,15 @@ namespace IdlessChaye.TouhouWaltz.Beats
 {
 	public class BeatJudger
 	{
-		private BeatInputer _inputer;
+		private BaseBeatInputer _inputer;
 
 		private BeatStopwatch _stopwatch;
 		private IList<BeatNoteItem> _beatNoteItems;
-		private int noteItemIndex = 0;
 
+		private int _noteItemIndex = 0;
 		private Queue<BaseBeatJudgeItem> _judgeItemQueue = new Queue<BaseBeatJudgeItem>();
 
-		public BeatJudger(BeatInputer inputer)
+		public BeatJudger(BaseBeatInputer inputer)
 		{
 			_inputer = inputer;
 			_stopwatch = BeatManager.Instance.Stopwatch;
@@ -23,7 +23,7 @@ namespace IdlessChaye.TouhouWaltz.Beats
 		public void PrepareGame()
 		{
 			_judgeItemQueue.Clear();
-			noteItemIndex = 0;
+			_noteItemIndex = 0;
 			_beatNoteItems = BeatManager.Instance.BeatNoteItems.Values;
 		}
 
@@ -36,10 +36,10 @@ namespace IdlessChaye.TouhouWaltz.Beats
 
 			// Add to judge queue
 			while (_beatNoteItems.Count > 0
-				&& noteItemIndex < _beatNoteItems.Count
-				&& _beatNoteItems[noteItemIndex].time < judgeTime + BeatConst.MaxJudgeTimeHalfWindow) 
+				&& _noteItemIndex < _beatNoteItems.Count
+				&& _beatNoteItems[_noteItemIndex].time < judgeTime + BeatConst.MaxJudgeTimeHalfWindow) 
 			{
-				var judgeItem = JudgeItemFactory(_beatNoteItems[noteItemIndex]);
+				var judgeItem = JudgeItemFactory(_beatNoteItems[_noteItemIndex]);
 				if (judgeItem == null)
 				{
 					Debug.LogError("BeatJudger Tick JudgeItemFactory. null.");
@@ -47,7 +47,7 @@ namespace IdlessChaye.TouhouWaltz.Beats
 				}
 				_judgeItemQueue.Enqueue(judgeItem);
 
-				noteItemIndex++;
+				_noteItemIndex++;
 			}
 
 			// Judge the first note
@@ -101,6 +101,19 @@ namespace IdlessChaye.TouhouWaltz.Beats
 
 			return null;
 		}
+
+		public void ResetGame()
+		{
+			_judgeItemQueue.Clear();
+			_noteItemIndex = 0;
+		}
+
+		public void ReadyToBePrepared()
+		{
+			_judgeItemQueue.Clear();
+			_noteItemIndex = 0;
+			_beatNoteItems = null;
+		}
 	}
 
 	public abstract class BaseBeatJudgeItem
@@ -109,7 +122,7 @@ namespace IdlessChaye.TouhouWaltz.Beats
 		public BeatNoteItem NoteItem { get; set; }
 		public bool IsFinished { get; protected set; } = false;
 
-		public abstract bool JudgeAndGetResult(BeatInputer inputer, float judgeTime, out BeatJudgeResult result);
+		public abstract bool JudgeAndGetResult(BaseBeatInputer inputer, float judgeTime, out BeatJudgeResult result);
 
 		protected BeatJudgeResult GenerateJudgeResult(BeatNoteItem noteItem,BeatJudgeResultType resultType,float judgeTime,float timespan)
 		{
@@ -125,7 +138,7 @@ namespace IdlessChaye.TouhouWaltz.Beats
 
 	public class KickJudgeItem : BaseBeatJudgeItem
 	{
-		public override bool JudgeAndGetResult(BeatInputer inputer, float judgeTime, out BeatJudgeResult result)
+		public override bool JudgeAndGetResult(BaseBeatInputer inputer, float judgeTime, out BeatJudgeResult result)
 		{
 			result = null;
 
@@ -175,7 +188,7 @@ namespace IdlessChaye.TouhouWaltz.Beats
 	public class HoldJudgeItem : BaseBeatJudgeItem
 	{
 		private bool _isBeginHolding = false;
-		public override bool JudgeAndGetResult(BeatInputer inputer, float judgeTime, out BeatJudgeResult result)
+		public override bool JudgeAndGetResult(BaseBeatInputer inputer, float judgeTime, out BeatJudgeResult result)
 		{
 			result = null;
 
