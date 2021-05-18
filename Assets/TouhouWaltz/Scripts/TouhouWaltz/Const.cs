@@ -20,5 +20,14 @@ namespace IdlessChaye.TouhouWaltz
 		public static uint MouseBeatRedClick = 0;
 		public static KeyCode KeyBeatRedClick = KeyCode.None;
 
+		public const float HighMoveSpeedDefault = 5;
+		public const float LowMoveSpeedDefault = 2;
+
+		public const int HPDefault = 2;
+		public const int BoomDefault = 2;
+		public const int PowerDefault = 0;
+
+		
+		
 	}
 }
