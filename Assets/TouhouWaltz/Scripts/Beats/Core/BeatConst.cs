@@ -7,7 +7,7 @@ namespace IdlessChaye.TouhouWaltz.Beats
 	public static class BeatConst
 	{
 		public const string BeatManagerPrefabPath = "Beats/Prefabs/BeatManager";
-		public const string BeatMapPath = "TouhouWaltz/Beats/Map";
+		public const string BeatMapPath = "Beats/Map";
 		public const string BeatAudioClipPath = "Beats/Music";
 		public const string BeatCanvasPrefabPath = "Beats/Prefabs/BeatCanvas";
 		public const string BeatKickSpriteItemPrefabPath = "Beats/Prefabs/KickSpriteItem";

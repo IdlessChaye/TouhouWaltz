@@ -6,9 +6,12 @@ namespace IdlessChaye.IdleToolkit
 {
 	public static class Util
 	{
-		public static bool CheckNotNull()
+		public static void TrySetActive(GameObject go, bool isActive)
 		{
-			return false;
+			if (go != null && go.activeSelf != isActive)
+			{
+				go.SetActive(isActive);
+			}
 		}
 	}
 }

@@ -3,28 +3,58 @@ using System.Collections.Generic;
 using UnityEngine;
 using MLAPI;
 using MLAPI.Extensions;
+using MLAPI.NetworkVariable;
 
 
 namespace IdlessChaye.TouhouWaltz
 {
 	public class Bullet : NetworkBehaviour
 	{
+		public enum BulletType
+		{
+			Big,
+			Middle,
+			Small
+		}
 
 		ulong _owner;
 		NetworkObjectPool _poolToReturn;
 
-		//public GameObject explosionParticle;
+		NetworkVariableFloat _size = new NetworkVariableFloat();
+		
 
-		public void Config(ulong owner, float lifetime, NetworkObjectPool poolToReturn)
+		public void Config(ulong owner, float lifetime, NetworkObjectPool poolToReturn, BulletType type)
 		{
 			_owner = owner;
 			_poolToReturn = poolToReturn;
+			InitByType(type);
 
 			if (IsServer)
 			{
 				// This is bad code don't use invoke.
 				Invoke(nameof(DestroyBullet), lifetime);
 			}
+		}
+
+		private void InitByType(BulletType type)
+		{
+			switch (type)
+			{
+				case BulletType.Big:
+					_size.Value = Const.BulletSizeBig;
+					break;
+				case BulletType.Middle:
+					_size.Value = Const.BulletSizeMiddle;
+					break;
+				case BulletType.Small:
+					_size.Value = Const.BulletSizeSmall;
+					break;
+			}
+		}
+
+		public override void NetworkStart()
+		{
+			transform.localScale = _size.Value * Vector3.one;
 		}
 
 		private void DestroyBullet()
@@ -43,12 +73,12 @@ namespace IdlessChaye.TouhouWaltz
 			_poolToReturn.ReturnNetworkObject(NetworkObject);
 		}
 
-		private void OnCollisionEnter2D(Collision2D collision)
+		private void OnTriggerEnter2D(Collider2D collision)
 		{
 			if (!IsServer || !NetworkObject.IsSpawned)
 				return;
 
-			var player = collision.collider.GetComponent<Player>();
+			var player = collision.GetComponent<Player>();
 			if (player != null && player.PlayerID != _owner)
 			{
 				player.TakeDamage(1);
