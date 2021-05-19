@@ -31,7 +31,8 @@ namespace IdlessChaye.TouhouWaltz.Beats
 		private BeatResultManager _beatResultManager;
 		private BeatRenderManager _beatRenderManager;
 		private GameObject _beatCanvas;
-		
+
+		public BeatResultManager BeatResultManager => _beatResultManager;
 
 		private BeatMapData _beatMapData;
 		public BeatMapData BeatMapData => _beatMapData;
@@ -75,10 +76,11 @@ namespace IdlessChaye.TouhouWaltz.Beats
 
 			_beatRenderManager = _beatCanvas.GetComponent<BeatRenderManager>();
 			_beatRenderManager.Init();
+			_beatRenderManager.IsFollowingMouse = true;
+
 			_beatResultManager.OnComboChanged += (combo) =>
 			{
 				_beatRenderManager.ComboText.text = "Combo: " + combo;
-				//_beatRenderManager.ComboText.DOText("Combo: " + combo, 0.2f);
 				float value = 50;
 				Tweener tweener = DOTween.To(() => value, (x) => value = x, 30, 0.2f)
 					.OnUpdate(() => _beatRenderManager.ComboText.fontSize = (int)value);
@@ -90,7 +92,6 @@ namespace IdlessChaye.TouhouWaltz.Beats
 				var str = "Time: " + _stopwatch.PastTime + "  ";
 				str += "Judge: " + result.resultType.ToString();
 				_beatRenderManager.JudgeResultText.text = str;
-				//_beatRenderManager.JudgeResultText.DOText(str, 0.2f);
 				float value = 50;
 				Tweener tweener = DOTween.To(() => value, (x) => value = x, 30, 0.2f)
 					.OnUpdate(() => _beatRenderManager.JudgeResultText.fontSize = (int)value);
@@ -146,6 +147,8 @@ namespace IdlessChaye.TouhouWaltz.Beats
 			_beatResultManager.Tick(deltaTime);
 			_beatRenderManager.Tick(deltaTime);
 		}
+
+		
 
 		private bool LoadGameData(string fileName)
 		{
@@ -214,7 +217,7 @@ namespace IdlessChaye.TouhouWaltz.Beats
 			_beatRenderManager.ReadyToBePrepared();
 		}
 
-		// Return to there is no any beats.
+		// Return to there is not any beats.
 		public void DestroyAll()
 		{
 			//TODO

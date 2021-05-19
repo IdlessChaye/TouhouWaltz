@@ -8,6 +8,9 @@ namespace IdlessChaye.TouhouWaltz.Beats
 	public class BeatRenderManager : MonoBehaviour
 	{
 		public float MaxRenderHalfTimeWindow { get; private set; }
+		public bool IsFollowingMouse { get; set; } = true;
+
+		[SerializeField] private RectTransform _beatRoot;
 
 		[SerializeField] private Text _comboText;
 		public Text ComboText => _comboText;
@@ -31,6 +34,8 @@ namespace IdlessChaye.TouhouWaltz.Beats
 		private int _spriteItemIndex = 0;
 		private Queue<BaseBeatSpriteItem> _spriteItemQueue = new Queue<BaseBeatSpriteItem>();
 
+		private Camera _mainCam;
+
 		public void Init()
 		{
 			_stopwatch = BeatManager.Instance.Stopwatch;
@@ -42,6 +47,7 @@ namespace IdlessChaye.TouhouWaltz.Beats
 			_holdSpriteItemPrefab = Resources.Load<GameObject>(BeatConst.BeatHoldSpriteItemPrefabPath);
 			if (_holdSpriteItemPrefab == null)
 				Debug.LogError("!");
+			_mainCam = Camera.main;
 		}
 
 		public void PrepareGame()
@@ -86,7 +92,6 @@ namespace IdlessChaye.TouhouWaltz.Beats
 			}
 
 		}
-
 
 		public void HandleJudgeResult(BeatJudgeResult result)
 		{
@@ -158,8 +163,16 @@ namespace IdlessChaye.TouhouWaltz.Beats
 			{
 				Destroy(item.gameObject);
 			}
-			_spriteItemQueue.Clear();
-			
+			_spriteItemQueue.Clear();	
+		}
+
+
+		private void LateUpdate()
+		{
+			if (IsFollowingMouse)
+			{
+				_beatRoot.transform.position = Input.mousePosition;
+			}
 		}
 
 	}

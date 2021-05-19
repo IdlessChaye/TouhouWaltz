@@ -33,5 +33,7 @@ namespace IdlessChaye.TouhouWaltz.Beats
 		public const string SpriteBadDisappearAniName = "SpriteBadDisappear";
 		public const string SpriteKickDisappearAniName = "SpriteKickDisappear";
 
+		public const string music000 = "経験値上昇中☆";
+
 	}
 }

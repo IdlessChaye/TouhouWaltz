@@ -8,13 +8,13 @@ namespace IdlessChaye.TouhouWaltz
 {
 	public class GameManager : MonoBehaviour
 	{
-		public bool hasBeatManager;
+		public bool activeBeatManager;
 
 		public string clipName;
 
 		private void Awake()
 		{
-			if (hasBeatManager)
+			if (activeBeatManager)
 				BeatManager.Instance.Init();
 		}
 		private void Start()
@@ -31,9 +31,8 @@ namespace IdlessChaye.TouhouWaltz
 		{
 			float deltaTime = Time.deltaTime;
 
-			if (hasBeatManager)
+			if (activeBeatManager)
 			{ 
-				// 如果放在FixedUpdate的话，Inputer可能会识别不到输入事件
 				BeatManager.Instance.Tick(deltaTime);
 			}
 		}

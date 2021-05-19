@@ -702,7 +702,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ca7d93c2444be54e87e416ac3302bbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hasBeatManager: 1
+  activeBeatManager: 1
   clipName: "\u7D4C\u9A13\u5024\u4E0A\u6607\u4E2D\u2606"
 --- !u!4 &1456961550
 Transform:
