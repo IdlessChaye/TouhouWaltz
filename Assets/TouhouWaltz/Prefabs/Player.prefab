@@ -184,13 +184,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletSmall: {fileID: 6997584407879643751, guid: f4ac4c8c5ee0edf4d8dea7273e82537c, type: 3}
   center: {fileID: 7880603138916293052}
+  boom: {fileID: 8704436128364235293, guid: 681506506ddb8794b8569a7f2f7eac7f, type: 3}
   _highMoveSpeed:
     m_InternalValue: 5
   _lowMoveSpeed:
     m_InternalValue: 3
   HP:
     m_InternalValue: 2
-  Boom:
+  BoomCount:
     m_InternalValue: 2
   Power:
     m_InternalValue: 0

@@ -17,7 +17,7 @@ namespace IdlessChaye.TouhouWaltz
 			Small
 		}
 
-		ulong _owner;
+		public ulong owner;
 		NetworkObjectPool _poolToReturn;
 
 		NetworkVariableFloat _size = new NetworkVariableFloat();
@@ -25,7 +25,7 @@ namespace IdlessChaye.TouhouWaltz
 
 		public void Config(ulong owner, float lifetime, NetworkObjectPool poolToReturn, BulletType type)
 		{
-			_owner = owner;
+			this.owner = owner;
 			_poolToReturn = poolToReturn;
 			InitByType(type);
 
@@ -57,7 +57,7 @@ namespace IdlessChaye.TouhouWaltz
 			transform.localScale = _size.Value * Vector3.one;
 		}
 
-		private void DestroyBullet()
+		public void DestroyBullet()
 		{
 			if (!NetworkObject.IsSpawned)
 			{
@@ -79,7 +79,7 @@ namespace IdlessChaye.TouhouWaltz
 				return;
 
 			var player = collision.GetComponent<Player>();
-			if (player != null && player.PlayerID != _owner)
+			if (player != null && player.PlayerID != owner)
 			{
 				player.TakeDamage(1);
 				DestroyBullet();

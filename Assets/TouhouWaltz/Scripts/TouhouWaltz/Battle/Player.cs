@@ -21,6 +21,8 @@ namespace IdlessChaye.TouhouWaltz
 		private GameObject bulletSmall;
 		[SerializeField]
 		private GameObject center;
+		[SerializeField]
+		private GameObject boom;
 
 
 		private NetworkVariableULong _playerID = new NetworkVariableULong(
@@ -46,7 +48,7 @@ namespace IdlessChaye.TouhouWaltz
 
 
 		public NetworkVariableInt HP = new NetworkVariableInt(Const.HPDefault);
-		public NetworkVariableInt Boom = new NetworkVariableInt(Const.BoomDefault);
+		public NetworkVariableInt BoomCount = new NetworkVariableInt(Const.BoomDefault);
 		public NetworkVariableInt Power = new NetworkVariableInt(Const.PowerDefault);
 		public NetworkVariableUInt Death = new NetworkVariableUInt(0);
 
@@ -57,19 +59,40 @@ namespace IdlessChaye.TouhouWaltz
 		private Transform _transform;
 
 
-		void OnHealth(int oldValue, int newValue)
+		void OnPlayer(int oldValue, int newValue)
 		{
+			if (!IsOwner)
+				return;
 			print("ID: " + PlayerID + "value: " + newValue);
+			GameCanvas.Instance.SetPlayer(newValue);
+		}
+		
+		void OnBoom(int oldValue, int newValue)
+		{
+			if (!IsOwner)
+				return;
+			GameCanvas.Instance.SetBoom(newValue);
+		}
+
+		void OnPower(int oldValue, int newValue)
+		{
+			if (!IsOwner)
+				return;
+			GameCanvas.Instance.SetPower(newValue);
 		}
 
 		void OnEnable()
 		{
-			HP.OnValueChanged += OnHealth;
+			HP.OnValueChanged += OnPlayer;
+			BoomCount.OnValueChanged += OnBoom;
+			Power.OnValueChanged += OnPower;
 		}
 
 		void OnDisable()
 		{
-			HP.OnValueChanged -= OnHealth;
+			HP.OnValueChanged -= OnPlayer;
+			BoomCount.OnValueChanged -= OnBoom;
+			Power.OnValueChanged -= OnPower;
 		}
 
 		private void Start()
@@ -169,10 +192,39 @@ namespace IdlessChaye.TouhouWaltz
 
 			#endregion
 
-			if (Input.GetKeyDown(KeyCode.Space))
+			if (Input.GetKeyDown(KeyCode.C))
 			{
 				Fire(Bullet.BulletType.Big);
 			}
+
+			if (Input.GetKeyDown(Const.KeyBoom))
+			{
+				FireBoom();
+			}
+		}
+
+		public void FireBoom()
+		{
+			if (!IsOwner)
+				return;
+
+			FireBoomServerRpc();
+		}
+
+		[ServerRpc]
+		private void FireBoomServerRpc()
+		{
+			var boomCount = BoomCount.Value;
+			if (boomCount == 0)
+			{
+				return;
+			}
+			BoomCount.Value = boomCount - 1;
+
+			GameObject boomGO = _pool.GetNetworkObject(boom);
+			boomGO.transform.position = transform.position;
+			boomGO.GetComponent<Boom>().Config(PlayerID, 2, _pool);
+			boomGO.GetComponent<NetworkObject>().Spawn(null, true);
 		}
 
 		public void Fire(Bullet.BulletType type)
@@ -251,7 +303,7 @@ namespace IdlessChaye.TouhouWaltz
 			if (hp <= 0)
 			{
 				hp = Const.HPDefault;
-				Boom.Value = Const.BoomDefault;
+				BoomCount.Value = Const.BoomDefault;
 				Power.Value = Const.PowerDefault;
 				Death.Value = Death.Value + 1;
 				TakeDamageClientRpc(damage);
